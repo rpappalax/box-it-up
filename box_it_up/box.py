@@ -2,9 +2,9 @@
 # coding: utf8
 
 # '''Python class for formatting various kinds of table data into an ascii table.'''
-SIMPLE = 1
-OUTLINE = 2
-OUTLINE_DBL = 0
+SIMPLE = 0
+OUTLINE = 1
+OUTLINE_DBL = 2
 
 class Box(object):
     """
@@ -15,18 +15,17 @@ class Box(object):
     def __init__(self):
 
         self._box = ''
-        self.HDR_TOP_LT = [ u'╔', '.', '┌' ]
-        self.HDR_TOP_MD = [ u'╦', '+', '┬' ]
-        self.HDR_TOP_RT = [ u'╗', '.', '┐']
-        self.HDR_BOT_LT = [ u'╠', '+', '├']
-        self.HDR_BOT_MD = [ u'╬', '+', '┼' ]
-        self.HDR_BOT_RT = [ u'╣', '+', '┤' ]
-        self.BOX_BOT_LT = [ u'╚', '+', '└' ]
-        self.BOX_BOT_MD = [ u'╩', '+', '┴' ]
-        self.BOX_BOT_RT = [ u'╝', '+', '┘' ]
-        self.BAR_HRZ = [ u'═', '-', '─' ]
-        self.BAR_VRT = [ u'║', '|', '│' ]
-
+        self.HDR_TOP_LT = [ '.', u'┌', u'╔' ]
+        self.HDR_TOP_MD = [ '+', u'┬', u'╦' ]
+        self.HDR_TOP_RT = [ '.', u'┐', u'╗' ]
+        self.HDR_BOT_LT = [ '+', u'├', u'╠']
+        self.HDR_BOT_MD = [ '+', u'┼',  u'╬' ]
+        self.HDR_BOT_RT = [ '+', u'┤',  u'╣' ]
+        self.BOX_BOT_LT = [ '+', u'└',  u'╚' ]
+        self.BOX_BOT_MD = [ '+', u'┴',  u'╩' ]
+        self.BOX_BOT_RT = [ '+', u'┘',  u'╝' ]
+        self.BAR_HRZ = [ '-', u'─', u'═' ]
+        self.BAR_VRT = [ '|', u'│', u'║' ]
 
     @property
     def box(self):
@@ -107,11 +106,12 @@ class Box(object):
         """
         return box
 
+
 if __name__ == '__main__':
 
     box = Box()
     print box.get_box_specify(SIMPLE)
-    # print box.get_box_specify(OUTLINE)
+    print box.get_box_specify(OUTLINE)
     print box.get_box_specify(OUTLINE_DBL)
 
     table_data = ''
@@ -125,10 +125,6 @@ if __name__ == '__main__':
             [ 'AAA', 'BBBB' ]
     ]
     print box.box_it(results, SIMPLE)
+    print box.box_it(results, OUTLINE)
     print box.box_it(results, OUTLINE_DBL)
-        # ╚ ═ ╩ ═ ╝
-        # ╔ ═ ╦ ═ ╗
-        # ║
-        # ╠ ═ ╬   ╣
-        # ╚ ═ ╩ ═ ╝
 
