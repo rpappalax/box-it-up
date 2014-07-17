@@ -2,6 +2,10 @@
 # coding: utf8
 
 # '''Python class for formatting various kinds of table data into an ascii table.'''
+SIMPLE = 0
+OUTLINE = 1
+OUTLINE_DBL = 2
+
 class Box(object):
     """
     @TODO:
@@ -38,17 +42,19 @@ class Box(object):
         """Returns table data as double-bar formatted string table."""
         pass
 
-    def dummy(self):
-        i = 1
-        box = '{}{}{}{}{}'.format(
-            self.HDR_TOP_LT[i],
-            self.BAR_HRZ[i],
-            self.HDR_TOP_MD[i],
-            self.BAR_HRZ[i],
-            self.HDR_TOP_RT[i]
+    def get_box_specify(self, type = 'SIMPLE'):
+        print self.HDR_TOP_RT[type]
+        box = u'{}{}{}{}{}'.format(
+            self.HDR_TOP_LT[type],
+            self.BAR_HRZ[type],
+            self.HDR_TOP_MD[type],
+            self.BAR_HRZ[type],
+            self.HDR_TOP_RT[type]
         )
-        print box
-        box_dummy = """
+        return box
+
+    def get_box_outline(self, data):
+        box = """
         .------------------------------.
         |            Basket            |
         +----+-----------------+-------+
@@ -60,14 +66,31 @@ class Box(object):
         +----+-----------------+-------+
         |    | Total           |  57.9 |
         '----+-----------------+-------'"""
+        return box
 
-        return box_dummy
+    def get_box_no_outline(self, data):
+        box = """
+         Row  | Name     | Year   | Priority
+        ------------------------------------
+         1    | Cat      | 1998   | 1
+         2    | Fish     | 1998   | 2
+         3    | Dog      | 1999   | 1
+         4    | Aardvark | 2000   | 1
+         5    | Wallaby  | 2000   | 1
+         6    | Zebra    | 2001   | 3
+        """
+        return box
 
 if __name__ == '__main__':
 
     box = Box()
-    print box.dummy()
+    print box.get_box_specify(SIMPLE)
+    print box.get_box_specify(OUTLINE)
+    # print box.get_box_specify(OUTLINE_DBL)
 
+    table_data = ''
+    print box.get_box_no_outline(table_data)
+    print box.get_box_outline(table_data)
         # ╚ ═ ╩ ═ ╝
         # ╔ ═ ╦ ═ ╗
         # ║
