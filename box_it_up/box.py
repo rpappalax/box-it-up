@@ -2,9 +2,9 @@
 # coding: utf8
 
 # '''Python class for formatting various kinds of table data into an ascii table.'''
-SIMPLE = 0
-OUTLINE = 1
-OUTLINE_DBL = 2
+SIMPLE = 1
+OUTLINE = 2
+OUTLINE_DBL = 0
 
 class Box(object):
     """
@@ -13,20 +13,19 @@ class Box(object):
     """
 
     def __init__(self):
+
         self._box = ''
-        self.HDR_TOP_LT = [ u'╔', '.' ]
-        self.HDR_TOP_MD = [ u'╦', '+' ]
-        self.HDR_TOP_RT = [ u'╗', '.']
-
-        self.HDR_BOT_LT = [ u'╠', '+' ]
-        self.HDR_BOT_MD = [ u'╬', '+' ]
-        self.HDR_BOT_RT = [ u'╣', '+' ]
-
-        self.BOX_BOT_LT = [ u'╚', '+' ]
-        self.BOX_BOT_MD = [ u'╩', '+' ]
-        self.BOX_BOT_RT = [ u'╝', '+' ]
-        self.BAR_HRZ = [ u'═', '-' ]
-        self.BAR_VRT = [ u'║', '|' ]
+        self.HDR_TOP_LT = [ u'╔', '.', '┌' ]
+        self.HDR_TOP_MD = [ u'╦', '+', '┬' ]
+        self.HDR_TOP_RT = [ u'╗', '.', '┐']
+        self.HDR_BOT_LT = [ u'╠', '+', '├']
+        self.HDR_BOT_MD = [ u'╬', '+', '┼' ]
+        self.HDR_BOT_RT = [ u'╣', '+', '┤' ]
+        self.BOX_BOT_LT = [ u'╚', '+', '└' ]
+        self.BOX_BOT_MD = [ u'╩', '+', '┴' ]
+        self.BOX_BOT_RT = [ u'╝', '+', '┘' ]
+        self.BAR_HRZ = [ u'═', '-', '─' ]
+        self.BAR_VRT = [ u'║', '|', '│' ]
 
 
     @property
@@ -51,6 +50,33 @@ class Box(object):
             self.BAR_HRZ[type],
             self.HDR_TOP_RT[type]
         )
+        return box
+
+    def box_it(self, results, type=SIMPLE):
+        """takes a list of lists (key, value pairs) and wraps them in a grid
+        results = [
+            [ 'AVG TEST DURATION', '2s' ],
+            [ 'TEST RESULTS', 'PASS: 2, FAIL: 0, ERROR: 3' ],
+            [ 'XXXXXXXXXXXXXXXXXXXXXXX', 'YYYYYYYYYY' ],
+            [ 'AAA', 'BBBB' ]
+        ] """
+        spacer = '   '
+        len_spacer = len(spacer)
+        max_len_keys = max([ len(str(key)) for key, val  in results])
+        results_reversed = [(t[1], t[0]) for t in results]
+        max_len_vals = max([ len(str(val)) for val, key  in results_reversed])
+        line_k= (max_len_keys + len_spacer) * self.BAR_HRZ[type]
+        line_v= (len_spacer + max_len_vals + len_spacer) * self.BAR_HRZ[type]
+        len_cell_k = max_len_keys + len_spacer
+        # len_cell_v = max_len_vals + len_spacer
+        i =0
+        box = ''
+        for k, v in results:
+            spacer_k = (len_cell_k - len(k)) * ' '
+            box +=  u'{}{}{}'.format(k + spacer_k, self.BAR_VRT[type], spacer + v) + '\n'
+            if len(results) > 1 and i < len(results) - 1:
+                box += u'{}{}{}'.format(line_k, self.HDR_BOT_MD[type], line_v) + '\n'
+            i += 1
         return box
 
     def get_box_outline(self, data):
@@ -85,12 +111,21 @@ if __name__ == '__main__':
 
     box = Box()
     print box.get_box_specify(SIMPLE)
-    print box.get_box_specify(OUTLINE)
-    # print box.get_box_specify(OUTLINE_DBL)
+    # print box.get_box_specify(OUTLINE)
+    print box.get_box_specify(OUTLINE_DBL)
 
     table_data = ''
     print box.get_box_no_outline(table_data)
     print box.get_box_outline(table_data)
+
+    results = [
+            [ 'AVG TEST DURATION', '2s' ],
+            [ 'TEST RESULTS', 'PASS: 2, FAIL: 0, ERROR: 3' ],
+            [ 'XXXXXXXXXXXXXXXXXXXXXXX', 'YYYYYYYYYY' ],
+            [ 'AAA', 'BBBB' ]
+    ]
+    print box.box_it(results, SIMPLE)
+    print box.box_it(results, OUTLINE_DBL)
         # ╚ ═ ╩ ═ ╝
         # ╔ ═ ╦ ═ ╗
         # ║
