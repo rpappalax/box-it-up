@@ -3,6 +3,7 @@
 import sys
 
 # '''Python class for formatting various kinds of table data into an ascii table.'''
+MINIMAL = 3
 SIMPLE = 0
 OUTLINE = 1
 OUTLINE_DBL = 2
@@ -27,22 +28,15 @@ class Box(object):
          |
     SW   S   SE
 
-    Table Types:
+    Table Types (see: Examples/table_types.txt):
     SIMPLE (Default) - asterisks underline column headers
     OUTLINE          - single line blocks entire table & header: optional: HEADER_OFF
     OUTLINE_DBL      - double line blocks entire table & header w/ optional: HEADER_OFF
 
-    Default
-        #   TIME   RESULT
-    ****** ****** ********
-        1     2s    PASS
-        2     2s    FAIL
-        3     2s   ERROR
-        4     2s    PASS
-        5     2s    FAIL
-
 
     @TODO:
+    * Add simple means to specify column orientation
+    * >> default: left-orientation all cols
     * Add 'colspan' type capability
     """
 
@@ -51,17 +45,62 @@ class Box(object):
         self._box = ''
 
         # table char types
+        # corners
         self.HDR_NW = [ '.', u'┌', u'╔' ]
-        self.HDR_N = [ '+', u'┬', u'╦' ]
-        self.HDR_NW = [ '.', u'┐', u'╗' ]
-        self.HDR_SW = [ '+', u'├', u'╠']
-        self.HDR_S = [ '+', u'┼',  u'╬' ]
-        self.HDR_SE = [ '+', u'┤',  u'╣' ]
+        self.HDR_NE = [ '.', u'┐', u'╗' ]
         self.DATA_SW = [ '+', u'└',  u'╚' ]
-        self.DATA_S = [ '+', u'┴',  u'╩' ]
         self.DATA_SE = [ '+', u'┘',  u'╝' ]
+
+        # middle
+        self.HDR_N = [ '+', u'┬', u'╦' ]
+        self.DATA_X = [ '+', u'┼',  u'╬' ]
+        self.DATA_S = [ '+', u'┴',  u'╩' ]
+
+        # sides
+        self.DATA_W = [ '+', u'├', u'╠']
+        self.DATA_E = [ '+', u'┤',  u'╣' ]
         self.HLINE = [ '-', u'─', u'═' ]
         self.VLINE = [ '|', u'│', u'║' ]
+
+    def box_it_new(self, type=MINIMAL):
+        box = ''
+        for row, row_list in enumerate(self._box):
+            for col, data in enumerate(row_list):
+
+                # write header line
+                if self.is_header(row):
+                    if self.is_col_first(col):
+                        box += self.HDR_NW[type]
+                    else:
+                        box += self.HDR_N[type]
+
+                    if self.is_col_last(col):
+                        box += self.HDR_NE[type]
+
+
+                # write data line
+                else:
+                    if self.is_col_first(col):
+                        box += '\n'
+                        box += self.DATA_W[type]
+                    else:
+                        box += self.DATA_X[type]
+
+                    box += data
+                    if self.is_col_last(col):
+                        box += self.DATA_E[type]
+
+        # write footer line
+        for col, data in enumerate(row_list):
+            if self.is_col_first(col):
+                box += '\n'
+                box += self.DATA_SW[type]
+            else:
+                box += self.DATA_S[type]
+
+            if self.is_col_last(col):
+                box += self.DATA_SE[type]
+        return box
 
     @property
     def box(self):
@@ -83,6 +122,18 @@ class Box(object):
         """Checks if data is tabular (each list in list must be of same length)"""
         lengths = [len(x) for x in data]
         return len(set(lengths))==1
+
+    def is_header(self, row_pos):
+        return (row_pos == 0)
+
+    def is_col_first(self, col_pos):
+        return (col_pos == 0)
+
+    def is_col_last(self, col_pos):
+        return (self._cols - 1 == col_pos)
+
+    def is_row_last(self, row_pos):
+        return (self._rows - 1 == row_pos)
 
     def box_double(self, list_data, header=False):
         """Returns table data as double-bar formatted string table."""
@@ -126,11 +177,7 @@ class Box(object):
             i += 1
         return box
 
-    def box_it_new(self):
 
-        for row in self._box:
-            for i, col in enumerate(row):
-                print '{} - {}'.format(row[i], i)
 
 
 
@@ -153,9 +200,17 @@ if __name__ == '__main__':
             ( 'XXXXXXXXXXXXXXXXXXXXXXX', 'YYYYYYYYYY' ),
             ( 'AAA', 'BBBB')
     ]
-    print box.box_it(results, SIMPLE)
+
+    results = [
+        [ 'aaa','bbb','cccc','dddd','eeee'],
+        [ 'ffff','gggg','hhhh','iiiii','jjjjjj'],
+        [ 'kk','lllllll','m','nnnnnn','oooooo'],
+        [ 'ppppp','qq','rrrr','sssss','t'],
+        [ 'u','vvv','ww','xxx','yyyy']
+    ]
+    # print box.box_it(results, SIMPLE)
     # print box.box_it(results, OUTLINE)
-    print box.box_it(results, OUTLINE_DBL)
+    # print box.box_it(results, OUTLINE_DBL)
     box.box = results
-    box.box_it_new()
+    print box.box_it_new(OUTLINE_DBL)
 
