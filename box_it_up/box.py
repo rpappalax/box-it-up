@@ -20,14 +20,18 @@ class Box(object):
     cardinal directions (see below):
     H - header
     F - footer
+    T - top
+    B - bottom
     L - left
+    M - middle
     R - right
 
-    HL   H   HR
-         |
-    L -- X -- R
-         |
-    FL   F   FR
+    HLT   HMT   HRT
+    HLB   HMB   HRB
+          |
+    L --- X --- R
+          |
+    FL    FM    FR
 
     Table Types (see: Examples/table_types.txt):
     SIMPLE (Default) - asterisks underline column headers
@@ -36,8 +40,6 @@ class Box(object):
 
 
     @TODO:
-    * Add simple means to specify column orientation
-    * >> default: left-orientation all cols
     * Add 'colspan' type capability
     """
 
@@ -48,22 +50,29 @@ class Box(object):
         self.box_type = type
 
         # table char types
-        # corners
-        self.HL = [ '.', u'┌', u'╔' ]
-        self.HR = [ '.', u'┐', u'╗' ]
-        self.FL = [ '+', u'└',  u'╚' ]
-        self.FR = [ '+', u'┘',  u'╝' ]
+        # header - top
+        self.HLT = [ ' ', '.', u'┌', u'╔' ]
+        self.HMT = [ ' ', '+', u'┬', u'╦' ]
+        self.HRT = [ ' ', '.', u'┐', u'╗' ]
 
-        # middle
-        self.H = [ '+', u'┬', u'╦' ]
-        self.DATA_X = [ '+', u'┼',  u'╬' ]
-        self.F = [ '+', u'┴',  u'╩' ]
+        # header - bottom
+        self.HLB = [ '-', '+', u'├', u'╠']
+        self.HMB = [ '-', '+', u'┼',  u'╬' ]
+        self.HRB = [ '-', '+', u'┤',  u'╣' ]
+
+        # footer
+        self.FL = [ '-', '+', u'└',  u'╚' ]
+        self.FM = [ '-', '+', u'┴',  u'╩' ]
+        self.FR = [ '-', '+', u'┘',  u'╝' ]
 
         # sides
-        self.L = [ '+', u'├', u'╠']
-        self.R = [ '+', u'┤',  u'╣' ]
-        self.HLINE = [ '-', u'─', u'═' ]
-        self.VLINE = [ '|', u'│', u'║' ]
+        self.L = [ ' ', '|', u'│', u'║']
+        # self.L = [ ' ', '|', u'│', u'║']
+        self.R = [ ' ', '|', u'│', u'║']
+        # self.R = [ ' ', '|', u'│', u'║']
+        self.M = [ '|', '|', u'│', u'║' ]
+        self.HLINE = [ '-', '-', u'─', u'═' ]
+        # self.VLINE = [ '|', '|', u'│', u'║' ]
 
         self._col_orientations = []
 
@@ -73,14 +82,17 @@ class Box(object):
 
     @box_type.setter
     def box_type(self, type_str):
+        self._box_type_name = type_str
         if type_str == 'MINIMAL':
-            self._box_type = 3
-        elif type_str == 'SIMPLE':
             self._box_type = 0
-        elif type_str == 'OUTLINE':
+        elif type_str == 'SIMPLE':
             self._box_type = 1
-        else: # type_str == 'OUTLINE_DBL'
+        elif type_str == 'OUTLINE_SIMPLE':
+            self._box_type = 1
+        elif type_str == 'OUTLINE':
             self._box_type = 2
+        else: # type_str == 'OUTLINE_DBL'
+            self._box_type = 3
 
     @property
     def box(self):
@@ -130,13 +142,14 @@ class Box(object):
         data = self.get_cell_formatted(col)
         if self.is_col_first(col):
             this_row += '\n'
-            this_row += self.HL[self.box_type]
+            this_row += self.HLT[self.box_type]
         else:
-            this_row += self.H[self.box_type]
+            this_row += self.HMT[self.box_type]
         this_row += self.HLINE[self.box_type] * (self._max_col_lens[col] + 2)
+        # this_row += self.HMT[self.box_type] * (self._max_col_lens[col] + 2)
 
         if self.is_col_last(col):
-            this_row += self.HR[self.box_type]
+            this_row += self.HRT[self.box_type]
         return this_row
 
     def get_header_row_bottom(self, col):
@@ -144,13 +157,14 @@ class Box(object):
         this_row = ''
         if self.is_col_first(col):
             this_row += '\n'
-            this_row += self.L[self.box_type]
+            this_row += self.HLB[self.box_type]
         else:
-            this_row += self.DATA_X[self.box_type]
+            this_row += self.HMB[self.box_type]
         this_row += self.HLINE[self.box_type] * (self._max_col_lens[col] + 2)
+        # this_row += self.HMB[self.box_type] * (self._max_col_lens[col] + 2)
 
         if self.is_col_last(col):
-            this_row += self.R[self.box_type]
+            this_row += self.HRB[self.box_type]
         return this_row
 
     def get_footer_row(self, col):
@@ -160,8 +174,9 @@ class Box(object):
             this_row += '\n'
             this_row += self.FL[self.box_type]
         else:
-            this_row += self.F[self.box_type]
+            this_row += self.FM[self.box_type]
         this_row += self.HLINE[self.box_type] * (self._max_col_lens[col] + 2)
+        # this_row += self.FM[self.box_type] * (self._max_col_lens[col] + 2)
 
         if self.is_col_last(col):
             this_row += self.FR[self.box_type]
@@ -173,11 +188,19 @@ class Box(object):
         data = self.get_cell_formatted(col, data)
         if self.is_col_first(col):
             this_row += '\n'
-        this_row += self.VLINE[self.box_type]
+            if 'OUTLINE' in self._box_type_name:
+                this_row += self.L[self.box_type]
+            else:
+                this_row += ' '
+
+        else:
+            this_row += self.M[self.box_type]
+
 
         this_row += str(data)
-        if self.is_col_last(col):
-            this_row += self.VLINE[self.box_type]
+        if 'OUTLINE' in self._box_type_name:
+            if self.is_col_last(col):
+                this_row += self.R[self.box_type]
         return this_row
 
     def get_cell_formatted(self, col, data=''):
@@ -205,12 +228,13 @@ class Box(object):
         returns box formatted data as string
         To format each column we need a list containing:
         1) max str length of each column
-        2) optional:  orientation of each column: <, >, ^ (default: <)
+        2) optional:  orientation of each column:
+           left <, right >, center ^ (default: left <)
         """
         box = ''
 
         # header
-        if self.header:
+        if ((self.header) and ('OUTLINE' in self._box_type_name)):
             for col, data in enumerate(self._box):
                 box += self.get_header_row(col)
         for col, data in enumerate(self._box[0]):
@@ -224,8 +248,9 @@ class Box(object):
                 box += self.get_data_row(col, data)
 
         # footer
-        for col, data in enumerate(row_list):
-            box += self.get_footer_row(col)
+        if 'OUTLINE' in self._box_type_name:
+            for col, data in enumerate(row_list):
+                box += self.get_footer_row(col)
         return box
 
     def is_tabular(self, data):
@@ -273,11 +298,14 @@ if __name__ == '__main__':
     ]
     box.col_orientations = [ '>', '<', '^', '>', '>']
 
-    # print box.box_it(results)
-    # print box.box_it(results)
-    # print box.box_it(results)
     box.box = results
+    box.box_type = 'MINIMAL'
+    print box.box_it_new()
+    box.box_type = 'SIMPLE'
+    print box.box_it_new()
+    box.box_type = 'OUTLINE'
+    print box.box_it_new()
+    box.box_type = 'OUTLINE_SIMPLE'
     print box.box_it_new()
     box.box_type = 'OUTLINE_DBL'
     print box.box_it_new()
-
