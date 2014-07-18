@@ -62,44 +62,61 @@ class Box(object):
         self.HLINE = [ '-', u'─', u'═' ]
         self.VLINE = [ '|', u'│', u'║' ]
 
+    def get_header_row(self, col, type=MINIMAL):
+        this_row = ''
+        if self.is_col_first(col):
+            this_row += self.HDR_NW[type]
+        else:
+            this_row += self.HDR_N[type]
+
+        if self.is_col_last(col):
+            this_row += self.HDR_NE[type]
+        return this_row
+
+    def get_data_row(self, col, data, type=MINIMAL):
+        this_row = ''
+        if self.is_col_first(col):
+            this_row += '\n'
+            this_row += self.DATA_W[type]
+        else:
+            this_row += self.DATA_X[type]
+
+        this_row += str(data)
+        if self.is_col_last(col):
+            this_row += self.DATA_E[type]
+        return this_row
+
+    def get_footer_row(self, col, type=MINIMAL):
+        this_row = ''
+        if self.is_col_first(col):
+            this_row += '\n'
+            this_row += self.DATA_SW[type]
+        else:
+            this_row += self.DATA_S[type]
+
+        if self.is_col_last(col):
+            this_row += self.DATA_SE[type]
+        return this_row
+
     def box_it_new(self, type=MINIMAL):
         box = ''
+        """
+        To format each column we need a list containing:
+        1) max str length of each column
+        2) optional:  orientation of each column: <, >, ^ (default: <)
+        """
+
         for row, row_list in enumerate(self._box):
             for col, data in enumerate(row_list):
-
                 # write header line
                 if self.is_header(row):
-                    if self.is_col_first(col):
-                        box += self.HDR_NW[type]
-                    else:
-                        box += self.HDR_N[type]
-
-                    if self.is_col_last(col):
-                        box += self.HDR_NE[type]
-
-
+                    box += self.get_header_row(col, type)
                 # write data line
                 else:
-                    if self.is_col_first(col):
-                        box += '\n'
-                        box += self.DATA_W[type]
-                    else:
-                        box += self.DATA_X[type]
-
-                    box += data
-                    if self.is_col_last(col):
-                        box += self.DATA_E[type]
-
+                    box += self.get_data_row(col, data, type)
         # write footer line
         for col, data in enumerate(row_list):
-            if self.is_col_first(col):
-                box += '\n'
-                box += self.DATA_SW[type]
-            else:
-                box += self.DATA_S[type]
-
-            if self.is_col_last(col):
-                box += self.DATA_SE[type]
+            box += self.get_footer_row(col, type)
         return box
 
     @property
@@ -114,9 +131,30 @@ class Box(object):
             self._box = data
             self._rows = len(data)
             self._cols = len(data[0])
+            self.max_col_len = data
         except Exception as e:
             print 'ERROR: Data is NOT tabular! (lists are not of same length)'
             sys.exit()
+
+    @property
+    def max_col_len(self):
+        return self._max_col_len
+
+    @max_col_len.setter
+    def max_col_len(self, table_data):
+        self._max_col_len = [max(len(str(x)) for x in line) for line in zip(*table_data)]
+
+    @property
+    def orientation(self):
+        return self._orientation
+
+    @orientation.setter
+    def orientation(self, list_orientations):
+        """optional parameter: set column orientations in a list
+        default: all cols are left-oriented
+        Example:
+        list_orientations = [ '<', '<', '^', '>', '>' ]"""
+        self._orientation = list_orientations
 
     def is_tabular(self, data):
         """Checks if data is tabular (each list in list must be of same length)"""
@@ -202,12 +240,14 @@ if __name__ == '__main__':
     ]
 
     results = [
-        [ 'aaa','bbb','cccc','dddd','eeee'],
-        [ 'ffff','gggg','hhhh','iiiii','jjjjjj'],
+        [ 'aaa','bbb','ccc','dddd','eeee'],
+        [ 'ffff','gggg','hhh','iiiiiiiiiiiii','jjjjjj'],
         [ 'kk','lllllll','m','nnnnnn','oooooo'],
-        [ 'ppppp','qq','rrrr','sssss','t'],
-        [ 'u','vvv','ww','xxx','yyyy']
+        [ 'ppppp','qq','rrr','sssss','t'],
+        [ 'u','vvv','ww','xxx','yyyyyyyyyyyyyyyy']
     ]
+    box.col_orientations = [ '>', '<', '^', '>', '>']
+
     # print box.box_it(results, SIMPLE)
     # print box.box_it(results, OUTLINE)
     # print box.box_it(results, OUTLINE_DBL)
