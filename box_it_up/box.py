@@ -64,83 +64,6 @@ class Box(object):
 
         self._col_orientations = []
 
-    def get_header_row(self, col, type=MINIMAL):
-        this_row = ''
-        data = self.get_col_formatted(col)
-        if self.is_col_first(col):
-            this_row += self.HDR_NW[type]
-            for i in xrange(0, self._max_col_lens[col] + 1):
-                this_row += self.HLINE[type]
-        else:
-            this_row += self.HDR_N[type]
-            for i in xrange(0, self._max_col_lens[col] + 1):
-                this_row += self.HLINE[type]
-
-        if self.is_col_last(col):
-            this_row += self.HDR_NE[type]
-        return this_row
-
-    def get_data_row(self, col, data, type=MINIMAL):
-        this_row = ''
-        data = self.get_col_formatted(col, data)
-        if self.is_col_first(col):
-            this_row += '\n'
-            this_row += self.DATA_W[type]
-        else:
-            this_row += self.DATA_X[type]
-
-        this_row += str(data)
-        if self.is_col_last(col):
-            this_row += self.DATA_E[type]
-        return this_row
-
-    def get_footer_row(self, col, type=MINIMAL):
-        this_row = ''
-        if self.is_col_first(col):
-            this_row += '\n'
-            this_row += self.DATA_SW[type]
-            for i in xrange(0, self._max_col_lens[col] + 1):
-                this_row += self.HLINE[type]
-        else:
-            this_row += self.DATA_S[type]
-            for i in xrange(0, self._max_col_lens[col] + 1):
-                this_row += self.HLINE[type]
-
-        if self.is_col_last(col):
-            this_row += self.DATA_SE[type]
-        return this_row
-
-    def get_col_formatted(self, col, data=''):
-
-        spacer_len = (self._max_col_lens[col] - len(str(data)))
-        spacer = spacer_len * ' '
-        if self._col_orientations[col] == '<':
-            cell = ' ' + data + spacer
-        elif self._col_orientations[col] == '>':
-            cell = spacer + data + ' '
-        else:
-            spacer_len = spacer_len // 2
-            spacer = spacer_len * ' '
-            cell = spacer  + data + spacer
-        return cell
-
-    def box_it_new(self, type=MINIMAL):
-        box = ''
-        """
-        To format each column we need a list containing:
-        1) max str length of each column
-        2) optional:  orientation of each column: <, >, ^ (default: <)
-        """
-
-        for row, row_list in enumerate(self._box):
-            for col, data in enumerate(row_list):
-                if self.is_header(row):
-                    box += self.get_header_row(col, type)
-                else:
-                    box += self.get_data_row(col, data, type)
-        for col, data in enumerate(row_list):
-            box += self.get_footer_row(col, type)
-        return box
 
     @property
     def box(self):
@@ -182,6 +105,90 @@ class Box(object):
         Example:
         list_orientations = [ '<', '<', '^', '>', '>' ]"""
         self._col_orientations = list_orientations
+
+    def get_header_row(self, col, type=MINIMAL):
+        this_row = ''
+        # data = self.get_col_formatted(col)
+        if self.is_col_first(col):
+            this_row += self.HDR_NW[type]
+        else:
+            this_row += self.HDR_N[type]
+        this_row += self.HLINE[type] * (self._max_col_lens[col] + 1)
+
+        if self.is_col_last(col):
+            this_row += self.HDR_NE[type]
+        return this_row
+
+    def get_data_row(self, col, data, type=MINIMAL):
+        this_row = ''
+        data = self.get_col_formatted(col, data)
+        if self.is_col_first(col):
+            this_row += '\n'
+            this_row += self.DATA_W[type]
+        else:
+            this_row += self.DATA_X[type]
+
+        this_row += str(data)
+        if self.is_col_last(col):
+            this_row += self.DATA_E[type]
+        return this_row
+
+    def get_footer_row(self, col, type=MINIMAL):
+        this_row = ''
+        if self.is_col_first(col):
+            this_row += '\n'
+            this_row += self.DATA_SW[type]
+            for i in xrange(0, self._max_col_lens[col] + 1):
+                this_row += self.HLINE[type]
+        else:
+            this_row += self.DATA_S[type]
+            for i in xrange(0, self._max_col_lens[col] + 1):
+                this_row += self.HLINE[type]
+
+        if self.is_col_last(col):
+            this_row += self.DATA_SE[type]
+        return this_row
+
+    def get_col_formatted(self, col, data=''):
+
+        spacer_len = (self._max_col_lens[col] - len(str(data)))
+        spacer = spacer_len * ' '
+        if self._col_orientations[col] == '<':
+            cell = ' {}{} '.format(data,spacer)
+            # cell = ' ' + data + spacer
+        elif self._col_orientations[col] == '>':
+            # cell = spacer + data + ' '
+            cell = ' {}{} '.format(spacer,data)
+        else:
+            spacer_len = spacer_len // 2
+            print spacer_len
+            spacer, remainder = divmod(spacer_len, 2)
+            spacer = spacer_len * ' '
+            extra = remainder * ' '
+            # cell = spacer  + data + spacer
+            cell = ' {}{}{} '.format(spacer,data,spacer,extra)
+
+        return cell
+
+    def box_it_new(self, type=MINIMAL):
+        box = ''
+        """
+        To format each column we need a list containing:
+        1) max str length of each column
+        2) optional:  orientation of each column: <, >, ^ (default: <)
+        """
+
+        for row, row_list in enumerate(self._box):
+            for col, data in enumerate(row_list):
+                if self.is_header(row):
+                    box += self.get_header_row(col, type)
+                else:
+                    box += self.get_data_row(col, data, type)
+        for col, data in enumerate(row_list):
+            box += self.get_footer_row(col, type)
+        return box
+
+
 
     def is_tabular(self, data):
         """Checks if data is tabular (each list in list must be of same length)"""
@@ -273,7 +280,7 @@ if __name__ == '__main__':
         [ 'ppppp','qq','rrr','sssss','t'],
         [ 'u','vvv','ww','xxx','yyyyyyyyyyyyyyyy']
     ]
-    # box.col_orientations = [ '>', '<', '^', '>', '>']
+    box.col_orientations = [ '>', '<', '^', '>', '>']
 
     # print box.box_it(results, SIMPLE)
     # print box.box_it(results, OUTLINE)
