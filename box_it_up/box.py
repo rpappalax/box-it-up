@@ -51,28 +51,25 @@ class Box(object):
 
         # table char types
         # header - top
-        self.HLT = [ ' ', '.', u'┌', u'╔' ]
-        self.HMT = [ ' ', '+', u'┬', u'╦' ]
-        self.HRT = [ ' ', '.', u'┐', u'╗' ]
+        self.HLT = [ ' ', ' ', '.', u'┌', u'╔' ]
+        self.HMT = [ ' ', ' ', '+', u'┬', u'╦' ]
+        self.HRT = [ ' ', ' ', '.', u'┐', u'╗' ]
 
         # header - bottom
-        self.HLB = [ '-', '+', u'├', u'╠']
-        self.HMB = [ '-', '+', u'┼',  u'╬' ]
-        self.HRB = [ '-', '+', u'┤',  u'╣' ]
+        self.HLB = [ ' ', '-', '+', u'├', u'╠']
+        self.HMB = [ ' ', '-', '+', u'┼',  u'╬' ]
+        self.HRB = [ ' ', '-', '+', u'┤',  u'╣' ]
 
         # footer
-        self.FL = [ '-', '+', u'└',  u'╚' ]
-        self.FM = [ '-', '+', u'┴',  u'╩' ]
-        self.FR = [ '-', '+', u'┘',  u'╝' ]
+        self.FL = [ ' ', '-', '+', u'└',  u'╚' ]
+        self.FM = [ ' ', '-', '+', u'┴',  u'╩' ]
+        self.FR = [ ' ', '-', '+', u'┘',  u'╝' ]
 
         # sides
-        self.L = [ ' ', '|', u'│', u'║']
-        # self.L = [ ' ', '|', u'│', u'║']
-        self.R = [ ' ', '|', u'│', u'║']
-        # self.R = [ ' ', '|', u'│', u'║']
-        self.M = [ '|', '|', u'│', u'║' ]
-        self.HLINE = [ '-', '-', u'─', u'═' ]
-        # self.VLINE = [ '|', '|', u'│', u'║' ]
+        self.L = [ ' ', ' ', '|', u'│', u'║']
+        self.R = [ ' ', ' ', '|', u'│', u'║']
+        self.M = [ ' ', '|', '|', u'│', u'║' ]
+        self.HLINE = [ '*', '-', '-', u'─', u'═' ]
 
         self._col_orientations = []
 
@@ -87,12 +84,41 @@ class Box(object):
             self._box_type = 0
         elif type_str == 'SIMPLE':
             self._box_type = 1
-        elif type_str == 'OUTLINE_SIMPLE':
-            self._box_type = 1
-        elif type_str == 'OUTLINE':
+        elif type_str == 'SIMPLE_OUTLINE':
             self._box_type = 2
-        else: # type_str == 'OUTLINE_DBL'
+        elif type_str == 'OUTLINE':
             self._box_type = 3
+        else: # type_str == 'OUTLINE_DBL'
+            self._box_type = 4
+
+    @property
+    def box(self):
+        return self._box
+
+    @box.setter
+    def box(self, data):
+        """Use box setter only for processing table data (rows x columns) in one fell swoop (vs. row-by-row)"""
+        try:
+            assert(self.is_tabular(data))
+            self._box = data
+            self._cols = len(data[0])
+            self._rows = len(data)
+
+            # default: left-orientation
+            for i in xrange(0, self._rows):
+                self._col_orientations.append('<')
+            self.max_col_lens = data
+        except Exception as e:
+            print 'ERROR: Data is NOT tabular! (lists are not of same length)'
+            sys.exit()
+
+    @property
+    def max_col_lens(self):
+        return self._max_col_lens
+
+    @max_col_lens.setter
+    def max_col_lens(self, table_data):
+        self._max_col_lens = [max(len(str(x)) for x in line) for line in zip(*table_data)]
 
     @property
     def box(self):
@@ -146,7 +172,6 @@ class Box(object):
         else:
             this_row += self.HMT[self.box_type]
         this_row += self.HLINE[self.box_type] * (self._max_col_lens[col] + 2)
-        # this_row += self.HMT[self.box_type] * (self._max_col_lens[col] + 2)
 
         if self.is_col_last(col):
             this_row += self.HRT[self.box_type]
@@ -161,7 +186,6 @@ class Box(object):
         else:
             this_row += self.HMB[self.box_type]
         this_row += self.HLINE[self.box_type] * (self._max_col_lens[col] + 2)
-        # this_row += self.HMB[self.box_type] * (self._max_col_lens[col] + 2)
 
         if self.is_col_last(col):
             this_row += self.HRB[self.box_type]
@@ -176,7 +200,6 @@ class Box(object):
         else:
             this_row += self.FM[self.box_type]
         this_row += self.HLINE[self.box_type] * (self._max_col_lens[col] + 2)
-        # this_row += self.FM[self.box_type] * (self._max_col_lens[col] + 2)
 
         if self.is_col_last(col):
             this_row += self.FR[self.box_type]
@@ -192,7 +215,6 @@ class Box(object):
                 this_row += self.L[self.box_type]
             else:
                 this_row += ' '
-
         else:
             this_row += self.M[self.box_type]
 
@@ -275,7 +297,7 @@ if __name__ == '__main__':
 
     box = Box(type='OUTLINE', header=True)
 
-    # TEST DATA
+    # TEST DATA - left column labels
     # results = [
     #         [ 'AVG TEST DURATION', '2s' ],
     #         [ 'TEST RESULTS', 'PASS: 2, FAIL: 0, ERROR: 3' ],
@@ -289,6 +311,7 @@ if __name__ == '__main__':
             ( 'AAA', 'BBBB')
     ]
 
+    # TEST DATA - header labels
     results = [
         [ 'aaa','bbb','ccc','dddd','eeee'],
         [ 'ffff','gggg','hhh','iiiiiiiiiiiii','jjjjjj'],
@@ -303,9 +326,9 @@ if __name__ == '__main__':
     print box.box_it_new()
     box.box_type = 'SIMPLE'
     print box.box_it_new()
-    box.box_type = 'OUTLINE'
+    box.box_type = 'SIMPLE_OUTLINE'
     print box.box_it_new()
-    box.box_type = 'OUTLINE_SIMPLE'
+    box.box_type = 'OUTLINE'
     print box.box_it_new()
     box.box_type = 'OUTLINE_DBL'
     print box.box_it_new()
