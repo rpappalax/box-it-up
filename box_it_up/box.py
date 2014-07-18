@@ -16,13 +16,18 @@ POS_SE = 7
 class Box(object):
     """
     Description:
-    Each data cell is surrounded by six positions most easily represented by cardinal directions (see below)
+    Each data cell is surrounded by six positions most easily represented by
+    cardinal directions (see below):
+    H - header
+    F - footer
+    L - left
+    R - right
 
-    NW   N   NE
+    HL   H   HR
          |
-    W -- X -- W
+    L -- X -- R
          |
-    SW   S   SE
+    FL   F   FR
 
     Table Types (see: Examples/table_types.txt):
     SIMPLE (Default) - asterisks underline column headers
@@ -44,19 +49,19 @@ class Box(object):
 
         # table char types
         # corners
-        self.HDR_NW = [ '.', u'┌', u'╔' ]
-        self.HDR_NE = [ '.', u'┐', u'╗' ]
-        self.DATA_SW = [ '+', u'└',  u'╚' ]
-        self.DATA_SE = [ '+', u'┘',  u'╝' ]
+        self.HL = [ '.', u'┌', u'╔' ]
+        self.HR = [ '.', u'┐', u'╗' ]
+        self.FL = [ '+', u'└',  u'╚' ]
+        self.FR = [ '+', u'┘',  u'╝' ]
 
         # middle
-        self.HDR_N = [ '+', u'┬', u'╦' ]
+        self.H = [ '+', u'┬', u'╦' ]
         self.DATA_X = [ '+', u'┼',  u'╬' ]
-        self.DATA_S = [ '+', u'┴',  u'╩' ]
+        self.F = [ '+', u'┴',  u'╩' ]
 
         # sides
-        self.DATA_W = [ '+', u'├', u'╠']
-        self.DATA_E = [ '+', u'┤',  u'╣' ]
+        self.L = [ '+', u'├', u'╠']
+        self.R = [ '+', u'┤',  u'╣' ]
         self.HLINE = [ '-', u'─', u'═' ]
         self.VLINE = [ '|', u'│', u'║' ]
 
@@ -125,28 +130,41 @@ class Box(object):
         data = self.get_cell_formatted(col)
         if self.is_col_first(col):
             this_row += '\n'
-            this_row += self.HDR_NW[self.box_type]
+            this_row += self.HL[self.box_type]
         else:
-            this_row += self.HDR_N[self.box_type]
-        this_row += self.HLINE[self.box_type] * (self._max_col_lens[col] + 1)
+            this_row += self.H[self.box_type]
+        this_row += self.HLINE[self.box_type] * (self._max_col_lens[col] + 2)
 
         if self.is_col_last(col):
-            this_row += self.HDR_NE[self.box_type]
+            this_row += self.HR[self.box_type]
         return this_row
 
     def get_header_row_bottom(self, col):
         """provides bottom header frame (row) as string"""
         this_row = ''
-        data = self.get_cell_formatted(col)
         if self.is_col_first(col):
             this_row += '\n'
-            this_row += self.DATA_W[self.box_type]
+            this_row += self.L[self.box_type]
         else:
             this_row += self.DATA_X[self.box_type]
-        this_row += self.HLINE[self.box_type] * (self._max_col_lens[col] + 1)
+        this_row += self.HLINE[self.box_type] * (self._max_col_lens[col] + 2)
 
         if self.is_col_last(col):
-            this_row += self.DATA_E[self.box_type]
+            this_row += self.R[self.box_type]
+        return this_row
+
+    def get_footer_row(self, col):
+        """returns footer frame row as string"""
+        this_row = ''
+        if self.is_col_first(col):
+            this_row += '\n'
+            this_row += self.FL[self.box_type]
+        else:
+            this_row += self.F[self.box_type]
+        this_row += self.HLINE[self.box_type] * (self._max_col_lens[col] + 2)
+
+        if self.is_col_last(col):
+            this_row += self.FR[self.box_type]
         return this_row
 
     def get_data_row(self, col, data):
@@ -160,23 +178,6 @@ class Box(object):
         this_row += str(data)
         if self.is_col_last(col):
             this_row += self.VLINE[self.box_type]
-        return this_row
-
-    def get_footer_row(self, col):
-        """returns footer frame row as string"""
-        this_row = ''
-        if self.is_col_first(col):
-            this_row += '\n'
-            this_row += self.DATA_SW[self.box_type]
-            for i in xrange(0, self._max_col_lens[col] + 1):
-                this_row += self.HLINE[self.box_type]
-        else:
-            this_row += self.DATA_S[self.box_type]
-            for i in xrange(0, self._max_col_lens[col] + 1):
-                this_row += self.HLINE[self.box_type]
-
-        if self.is_col_last(col):
-            this_row += self.DATA_SE[self.box_type]
         return this_row
 
     def get_cell_formatted(self, col, data=''):
@@ -249,6 +250,7 @@ if __name__ == '__main__':
 
     box = Box(type='OUTLINE', header=True)
 
+    # TEST DATA
     # results = [
     #         [ 'AVG TEST DURATION', '2s' ],
     #         [ 'TEST RESULTS', 'PASS: 2, FAIL: 0, ERROR: 3' ],
