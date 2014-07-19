@@ -34,9 +34,11 @@ class Box(object):
     FL    FM    FR
 
     Table Types (see: Examples/table_types.txt):
-    SIMPLE (Default) - asterisks underline column headers
-    OUTLINE          - single line blocks entire table & header: optional: HEADER_OFF
-    OUTLINE_DBL      - double line blocks entire table & header w/ optional: HEADER_OFF
+    MINIMAL          - asterisks underline column headers, no column dividers, no outline
+    SIMPLE (Default) - single line header and column dividers, no outline
+    SIMPLE_OUTLINE   - single line header, column dividers & outline
+    OUTLINE          - single line header, column dividers & outline (extended ascii connectors)
+    OUTLINE_DBL      - double line header, column dividers & outline (extended ascii connectors)
 
 
     @TODO:
@@ -71,25 +73,38 @@ class Box(object):
         self.M = [ ' ', '|', '|', u'│', u'║' ]
         self.HLINE = [ '*', '-', '-', u'─', u'═' ]
 
+        self._types = {
+        'MINIMAL': {
+                'HLT': ' ', 'HMT': ' ', 'HRT': ' ',
+                'HLB': ' ', 'HMB': ' ', 'HRB': ' ',
+                'FL': ' ', 'FM': ' ', 'FR': ' ',
+                'L': ' ', 'M': ' ', 'R': ' ',
+                'HLINE': '*'
+        },
+        'SIMPLE': {
+            'HLT': ' ', 'HMT': ' ', 'HRT': ' ',
+            'HLB': '-', 'HMB': '-', 'HRB': '-',
+            'FL': '-', 'FM': '-', 'FR': '-',
+            'L': ' ', 'M': '|', 'R': ' ',
+            'HLINE': '-'
+        },
+        'SIMPLE_OUTLINE': {
+            'HLT': '.', 'HMT': '+', 'HRT': '.',
+            'HLB': '+', 'HMB': '+', 'HRB': '+',
+            'FL': '+', 'FM': '+', 'FR': '+',
+            'L': '|', 'M': '|', 'R': '|',
+            'HLINE': '-' }
+        }
+
         self._col_orientations = []
 
     @property
     def box_type(self):
-        return self._box_type
+        return self._type
 
     @box_type.setter
     def box_type(self, type_str):
-        self._box_type_name = type_str
-        if type_str == 'MINIMAL':
-            self._box_type = 0
-        elif type_str == 'SIMPLE':
-            self._box_type = 1
-        elif type_str == 'SIMPLE_OUTLINE':
-            self._box_type = 2
-        elif type_str == 'OUTLINE':
-            self._box_type = 3
-        else: # type_str == 'OUTLINE_DBL'
-            self._box_type = 4
+        self._type = type_str
 
     @property
     def box(self):
@@ -118,6 +133,7 @@ class Box(object):
 
     @max_col_lens.setter
     def max_col_lens(self, table_data):
+        """set the max col length for each column"""
         self._max_col_lens = [max(len(str(x)) for x in line) for line in zip(*table_data)]
 
     @property
@@ -162,47 +178,19 @@ class Box(object):
         list_orientations = [ '<', '<', '^', '>', '>' ]"""
         self._col_orientations = list_orientations
 
-    def get_header_row(self, col):
-        """provides top header frame (row) as string"""
+    def get_frame_row(self, col, LEFT, MID, RIGHT, HLINE):
+        """provides top header/footer frame (row) as string"""
         this_row = ''
         data = self.get_cell_formatted(col)
         if self.is_col_first(col):
             this_row += '\n'
-            this_row += self.HLT[self.box_type]
+            this_row += self._types[self._type][LEFT]
         else:
-            this_row += self.HMT[self.box_type]
-        this_row += self.HLINE[self.box_type] * (self._max_col_lens[col] + 2)
+            this_row += self._types[self._type][MID]
+        this_row += self._types[self._type][HLINE] * (self._max_col_lens[col] + 2)
 
         if self.is_col_last(col):
-            this_row += self.HRT[self.box_type]
-        return this_row
-
-    def get_header_row_bottom(self, col):
-        """provides bottom header frame (row) as string"""
-        this_row = ''
-        if self.is_col_first(col):
-            this_row += '\n'
-            this_row += self.HLB[self.box_type]
-        else:
-            this_row += self.HMB[self.box_type]
-        this_row += self.HLINE[self.box_type] * (self._max_col_lens[col] + 2)
-
-        if self.is_col_last(col):
-            this_row += self.HRB[self.box_type]
-        return this_row
-
-    def get_footer_row(self, col):
-        """returns footer frame row as string"""
-        this_row = ''
-        if self.is_col_first(col):
-            this_row += '\n'
-            this_row += self.FL[self.box_type]
-        else:
-            this_row += self.FM[self.box_type]
-        this_row += self.HLINE[self.box_type] * (self._max_col_lens[col] + 2)
-
-        if self.is_col_last(col):
-            this_row += self.FR[self.box_type]
+            this_row += self._types[self._type][RIGHT]
         return this_row
 
     def get_data_row(self, col, data):
@@ -211,18 +199,17 @@ class Box(object):
         data = self.get_cell_formatted(col, data)
         if self.is_col_first(col):
             this_row += '\n'
-            if 'OUTLINE' in self._box_type_name:
-                this_row += self.L[self.box_type]
+            if 'OUTLINE' in self._type:
+                this_row += self._types[self._type]['L']
             else:
                 this_row += ' '
         else:
-            this_row += self.M[self.box_type]
-
+            this_row += self._types[self._type]['M']
 
         this_row += str(data)
-        if 'OUTLINE' in self._box_type_name:
+        if 'OUTLINE' in self._type:
             if self.is_col_last(col):
-                this_row += self.R[self.box_type]
+                this_row += self._types[self._type]['R']
         return this_row
 
     def get_cell_formatted(self, col, data=''):
@@ -256,13 +243,13 @@ class Box(object):
         box = ''
 
         # header
-        if ((self.header) and ('OUTLINE' in self._box_type_name)):
+        if ((self.header) and ('OUTLINE' in self._type)):
             for col, data in enumerate(self._box):
-                box += self.get_header_row(col)
+                box += self.get_frame_row(col,'HLT', 'HMT', 'HRT', 'HLINE')
         for col, data in enumerate(self._box[0]):
             box += self.get_data_row(col, data)
         for col, data in enumerate(self._box):
-            box += self.get_header_row_bottom(col)
+            box += self.get_frame_row(col,'HLB', 'HMB', 'HRB', 'HLINE')
 
         # data
         for row, row_list in enumerate(self._box[1:]):
@@ -270,9 +257,9 @@ class Box(object):
                 box += self.get_data_row(col, data)
 
         # footer
-        if 'OUTLINE' in self._box_type_name:
+        if 'OUTLINE' in self._type:
             for col, data in enumerate(row_list):
-                box += self.get_footer_row(col)
+                box += self.get_frame_row(col,'FL', 'FM', 'FR', 'HLINE')
         return box
 
     def is_tabular(self, data):
@@ -328,7 +315,7 @@ if __name__ == '__main__':
     print box.box_it_new()
     box.box_type = 'SIMPLE_OUTLINE'
     print box.box_it_new()
-    box.box_type = 'OUTLINE'
-    print box.box_it_new()
-    box.box_type = 'OUTLINE_DBL'
-    print box.box_it_new()
+    # box.box_type = 'OUTLINE'
+    # print box.box_it_new()
+    # box.box_type = 'OUTLINE_DBL'
+    # print box.box_it_new()
