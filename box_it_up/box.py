@@ -51,50 +51,44 @@ class Box(object):
         self.header = header
         self.box_type = type
 
-        # table char types
-        # header - top
-        self.HLT = [ ' ', ' ', '.', u'┌', u'╔' ]
-        self.HMT = [ ' ', ' ', '+', u'┬', u'╦' ]
-        self.HRT = [ ' ', ' ', '.', u'┐', u'╗' ]
-
-        # header - bottom
-        self.HLB = [ ' ', '-', '+', u'├', u'╠']
-        self.HMB = [ ' ', '-', '+', u'┼',  u'╬' ]
-        self.HRB = [ ' ', '-', '+', u'┤',  u'╣' ]
-
-        # footer
-        self.FL = [ ' ', '-', '+', u'└',  u'╚' ]
-        self.FM = [ ' ', '-', '+', u'┴',  u'╩' ]
-        self.FR = [ ' ', '-', '+', u'┘',  u'╝' ]
-
-        # sides
-        self.L = [ ' ', ' ', '|', u'│', u'║']
-        self.R = [ ' ', ' ', '|', u'│', u'║']
-        self.M = [ ' ', '|', '|', u'│', u'║' ]
-        self.HLINE = [ '*', '-', '-', u'─', u'═' ]
-
         self._types = {
-        'MINIMAL': {
+            'MINIMAL': {
                 'HLT': ' ', 'HMT': ' ', 'HRT': ' ',
                 'HLB': ' ', 'HMB': ' ', 'HRB': ' ',
                 'FL': ' ', 'FM': ' ', 'FR': ' ',
                 'L': ' ', 'M': ' ', 'R': ' ',
                 'HLINE': '*'
-        },
-        'SIMPLE': {
-            'HLT': ' ', 'HMT': ' ', 'HRT': ' ',
-            'HLB': '-', 'HMB': '-', 'HRB': '-',
-            'FL': '-', 'FM': '-', 'FR': '-',
-            'L': ' ', 'M': '|', 'R': ' ',
-            'HLINE': '-'
-        },
-        'SIMPLE_OUTLINE': {
-            'HLT': '.', 'HMT': '+', 'HRT': '.',
-            'HLB': '+', 'HMB': '+', 'HRB': '+',
-            'FL': '+', 'FM': '+', 'FR': '+',
-            'L': '|', 'M': '|', 'R': '|',
-            'HLINE': '-' }
+            },
+            'SIMPLE': {
+                'HLT': ' ', 'HMT': ' ', 'HRT': ' ',
+                'HLB': '-', 'HMB': '-', 'HRB': '-',
+                'FL': '-', 'FM': '-', 'FR': '-',
+                'L': ' ', 'M': '|', 'R': ' ',
+                'HLINE': '-'
+            },
+            'SIMPLE_OUTLINE': {
+                'HLT': '.', 'HMT': '+', 'HRT': '.',
+                'HLB': '+', 'HMB': '+', 'HRB': '+',
+                'FL': '+', 'FM': '+', 'FR': '+',
+                'L': '|', 'M': '|', 'R': '|',
+                'HLINE': '-'
+            },
+            'OUTLINE': {
+                'HLT':'┌', 'HMT':'┬', 'HRT':'┐',
+                'HLB':'├', 'HMB':'┼', 'HRB':'┤',
+                'FL':'└', 'FM':'┴', 'FR':'┘',
+                'L':'│', 'R':'│', 'M':'│',
+                'HLINE':'─'
+            },
+            'OUTLINE_DBL': {
+                'HLT': '╔', 'HMT': '╦', 'HRT': '╗',
+                'HLB': '╠', 'HMB': '╬', 'HRB': '╣',
+                'FL': '╚', 'FM': '╩', 'FR': '╝',
+                'L': '║', 'R': '║', 'M': '║',
+                'HLINE': '═'
+            }
         }
+
 
         self._col_orientations = []
 
@@ -181,12 +175,13 @@ class Box(object):
     def get_frame_row(self, col, LEFT, MID, RIGHT, HLINE):
         """provides top header/footer frame (row) as string"""
         this_row = ''
-        data = self.get_cell_formatted(col)
         if self.is_col_first(col):
             this_row += '\n'
             this_row += self._types[self._type][LEFT]
         else:
             this_row += self._types[self._type][MID]
+
+        # extend HLINE char for length of cell
         this_row += self._types[self._type][HLINE] * (self._max_col_lens[col] + 2)
 
         if self.is_col_last(col):
@@ -315,7 +310,7 @@ if __name__ == '__main__':
     print box.box_it_new()
     box.box_type = 'SIMPLE_OUTLINE'
     print box.box_it_new()
-    # box.box_type = 'OUTLINE'
-    # print box.box_it_new()
-    # box.box_type = 'OUTLINE_DBL'
-    # print box.box_it_new()
+    box.box_type = 'OUTLINE'
+    print box.box_it_new()
+    box.box_type = 'OUTLINE_DBL'
+    print box.box_it_new()
