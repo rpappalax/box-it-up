@@ -1,72 +1,94 @@
 
+ ########################
+ # MINIMAL
+ ########################
 
-####################################
-# MINIMAL (Default)
-####################################
-
-    #   TIME   RESULT
-****** ****** ********
-    1     2s    PASS
-    2     2s    FAIL
-    3     2s   ERROR
-    4     2s    PASS
-    5     2s    FAIL
-
-####################################
-# SIMPLE (Default)
-####################################
-
- Row  | Name     | Year   | Priority
-------------------------------------
- 1    | Cat      | 1998   | 1
- 2    | Fish     | 1998   | 2
- 3    | Dog      | 1999   | 1
- 4    | Aardvark | 2000   | 1
- 5    | Wallaby  | 2000   | 1
- 6    | Zebra    | 2001   | 3
-
-
-####################################
-# OUTLINE (HEADER=True)
-####################################
-
-.------------------------------.
-|            Basket            |
-+----+-----------------+-------+
-| Id | Name            | Price |
-+----+-----------------+-------+
-|  1 | Dummy product 1 |  24.4 |
-|  2 | Dummy product 2 |  21.2 |
-|  3 | Dummy product 3 |  12.3 |
-+----+-----------------+-------+
-|    | Total           |  57.9 |
-'----+-----------------+-------'
-
-
-####################################
-# OUTLINE (HEADER=False)
-####################################
-
-
-AVG TEST DURATION         |   2s
---------------------------+--------------------------------
-TEST RESULTS              |   PASS: 2, FAIL: 0, ERROR: 3
---------------------------+--------------------------------
-XXXXXXXXXXXXXXXXXXXXXXX   |   YYYYYYYYYY
---------------------------+--------------------------------
-AAA                       |   BBBB
+    aaa   bbb       ccc             dddd               eeee
+ ******* ********* ****** *************** ****************** 
+   ffff   gggg      hhh    iiiiiiiiiiiii             jjjjjj 
+     kk   lllllll    m            nnnnnn             oooooo 
+  ppppp   qq        rrrr           sssss                  t 
+      u   vvv        ww              xxx   yyyyyyyyyyyyyyyy
 
 
 
-####################################
-# OUTLINE_DBL (HEADER=False)
-####################################
+ ########################
+ # SIMPLE
+ ########################
+
+    aaa | bbb     | ccc  |          dddd |             eeee
+-------------------------------------------------------------
+   ffff | gggg    | hhh  | iiiiiiiiiiiii |           jjjjjj 
+     kk | lllllll |  m   |        nnnnnn |           oooooo 
+  ppppp | qq      | rrrr |         sssss |                t 
+      u | vvv     |  ww  |           xxx | yyyyyyyyyyyyyyyy
 
 
-AVG TEST DURATION         ║   2s
-══════════════════════════╬════════════════════════════════
-TEST RESULTS              ║   PASS: 2, FAIL: 0, ERROR: 3
-══════════════════════════╬════════════════════════════════
-XXXXXXXXXXXXXXXXXXXXXXX   ║   YYYYYYYYYY
-══════════════════════════╬════════════════════════════════
-AAA                       ║   BBBB
+ ########################
+ # SIMPLE_OUTLINE
+ ########################
+
+.-------+---------+------+---------------+------------------.
+|   aaa | bbb     | ccc  |          dddd |             eeee |
++-------+---------+------+---------------+------------------+
+|  ffff | gggg    | hhh  | iiiiiiiiiiiii |           jjjjjj |
+|    kk | lllllll |  m   |        nnnnnn |           oooooo |
+| ppppp | qq      | rrrr |         sssss |                t |
+|     u | vvv     |  ww  |           xxx | yyyyyyyyyyyyyyyy |
++-------+---------+------+---------------+------------------+
+
+
+ ########################
+ # OUTLINE
+ ########################
+
+┌───────┬─────────┬──────┬───────────────┬──────────────────┐
+│   aaa │ bbb     │ ccc  │          dddd │             eeee │
+├───────┼─────────┼──────┼───────────────┼──────────────────┤
+│  ffff │ gggg    │ hhh  │ iiiiiiiiiiiii │           jjjjjj │
+│    kk │ lllllll │  m   │        nnnnnn │           oooooo │
+│ ppppp │ qq      │ rrrr │         sssss │                t │
+│     u │ vvv     │  ww  │           xxx │ yyyyyyyyyyyyyyyy │
+└───────┴─────────┴──────┴───────────────┴──────────────────┘
+
+
+ ########################
+ # OUTLINE_DBL
+ ########################
+
+
+╔═══════╦═════════╦══════╦═══════════════╦══════════════════╗
+║   aaa ║ bbb     ║ ccc  ║          dddd ║             eeee ║
+╠═══════╬═════════╬══════╬═══════════════╬══════════════════╣
+║  ffff ║ gggg    ║ hhh  ║ iiiiiiiiiiiii ║           jjjjjj ║
+║    kk ║ lllllll ║  m   ║        nnnnnn ║           oooooo ║
+║ ppppp ║ qq      ║ rrrr ║         sssss ║                t ║
+║     u ║ vvv     ║  ww  ║           xxx ║ yyyyyyyyyyyyyyyy ║
+╚═══════╩═════════╩══════╩═══════════════╩══════════════════╝
+
+
+
+ ########################
+ # SIMPLE_OUTLINE - HEADER=False
+ ########################
+
+
+.-------------------------+----------------------------.
+| AVG TEST DURATION       | 2s                         |
+| TEST RESULTS            | PASS: 2, FAIL: 0, ERROR: 3 |
+| XXXXXXXXXXXXXXXXXXXXXXX | YYYYYYYYYY                 |
+| AAA                     | BBBB                       |
++-------------------------+----------------------------+
+
+
+ ########################
+ # OUTLINE_DBL - HEADER=False
+ ########################
+
+
+╔═════════════════════════╦════════════════════════════╗
+║ AVG TEST DURATION       ║ 2s                         ║
+║ TEST RESULTS            ║ PASS: 2, FAIL: 0, ERROR: 3 ║
+║ XXXXXXXXXXXXXXXXXXXXXXX ║ YYYYYYYYYY                 ║
+║ AAA                     ║ BBBB                       ║
+╚═════════════════════════╩════════════════════════════╝

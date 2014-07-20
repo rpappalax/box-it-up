@@ -16,8 +16,9 @@ POS_SE = 7
 class Box(object):
     """
     Description:
-    Each data cell is surrounded by six positions most easily represented by
-    cardinal directions (see below):
+    Each data cell is surrounded by 6 header chars, 3 footer chars and a left and right char
+    Think of cardinal directions on a map
+
     H - header
     F - footer
     T - top
@@ -25,6 +26,8 @@ class Box(object):
     L - left
     M - middle
     R - right
+
+    Example: HLT = HEADER LEFT TOP, etc.
 
     HLT   HMT   HRT
     HLB   HMB   HRB
@@ -40,8 +43,11 @@ class Box(object):
     OUTLINE          - single line header, column dividers & outline (extended ascii connectors)
     OUTLINE_DBL      - double line header, column dividers & outline (extended ascii connectors)
 
+    Tables can be header=True or False
+
 
     @TODO:
+    * Add a 0 column row counter flag
     * Add 'colspan' type capability
     """
 
@@ -99,6 +105,15 @@ class Box(object):
     @box_type.setter
     def box_type(self, type_str):
         self._type = type_str
+
+
+    @property
+    def header(self):
+        return self._header
+
+    @header.setter
+    def header(self, header):
+        self._header = header
 
     @property
     def box(self):
@@ -227,7 +242,7 @@ class Box(object):
 
         return cell
 
-    def box_it_new(self):
+    def box_it(self):
         """
         returns box formatted data as string
         To format each column we need a list containing:
@@ -238,13 +253,14 @@ class Box(object):
         box = ''
 
         # header
-        if ((self.header) and ('OUTLINE' in self._type)):
+        if ('OUTLINE' in self._type):
             for col, data in enumerate(self._box[0]):
                 box += self.get_frame_row(col,'HLT', 'HMT', 'HRT', 'HLINE')
         for col, data in enumerate(self._box[0]):
             box += self.get_data_row(col, data)
-        for col, data in enumerate(self._box[0]):
-            box += self.get_frame_row(col,'HLB', 'HMB', 'HRB', 'HLINE')
+        if (self.header):
+            for col, data in enumerate(self._box[0]):
+                box += self.get_frame_row(col,'HLB', 'HMB', 'HRB', 'HLINE')
 
         # data
         for row, row_list in enumerate(self._box[1:]):
@@ -277,55 +293,50 @@ class Box(object):
 
 if __name__ == '__main__':
 
-    box = Box(type='OUTLINE', header=True)
+    # box = Box(type='OUTLINE', header=True)
 
-    # TEST DATA - left column labels
-    # results = [
-    #         [ 'AVG TEST DURATION', '2s' ],
-    #         [ 'TEST RESULTS', 'PASS: 2, FAIL: 0, ERROR: 3' ],
-    #         [ 'XXXXXXXXXXXXXXXXXXXXXXX', 'YYYYYYYYYY' ],
-    #         [ 'AAA', 'BBBB' ]
-    # ]
+    ####################################
+    # TEST DATA - with header labels
+    ####################################
+
+    box = Box()
     results = [
-            ( 'AVG TEST DURATION', '2s' ),
-            ( 'TEST RESULTS', 'PASS: 2, FAIL: 0, ERROR: 3' ),
-            ( 'XXXXXXXXXXXXXXXXXXXXXXX', 'YYYYYYYYYY' ),
-            ( 'AAA', 'BBBB')
+        [ 'aaa','bbb','ccc','dddd','eeee'],
+        [ 'ffff','gggg','hhh','iiiiiiiiiiiii','jjjjjj'],
+        [ 'kk','lllllll','m','nnnnnn','oooooo'],
+        [ 'ppppp','qq','rrrr','sssss','t'],
+        [ 'u','vvv','ww','xxx','yyyyyyyyyyyyyyyy']
     ]
-    #
-    # # TEST DATA - header labels
-    # results = [
-    #     [ 'aaa','bbb','ccc','dddd','eeee'],
-    #     [ 'ffff','gggg','hhh','iiiiiiiiiiiii','jjjjjj'],
-    #     [ 'kk','lllllll','m','nnnnnn','oooooo'],
-    #     [ 'ppppp','qq','rrrr','sssss','t'],
-    #     [ 'u','vvv','ww','xxx','yyyyyyyyyyyyyyyy']
-    # ]
-    # results = [
-    #     [ 'aaa','bbb','ccc','dddd'],
-    #     [ 'ffff','gggg','hhh','iiiiiiiiiiiii'],
-    #     [ 'kk','lllllll','m','nnnnnn'],
-    #     [ 'ppppp','qq','rrrr','sssss'],
-    #     [ 'u','vvv','ww','xxx']
-    # ]
-    # results = [
-    #      [ 'aaa','bbb' ],
-    #      [ 'ffff','gggg' ],
-    #      [ 'kk','lllllll' ],
-    #      [ 'ppppp','qq' ],
-    #      [ 'u','vvv' ]
-    # ]
     box.col_orientations = [ '>', '<', '^', '>', '>']
-    # box.col_orientations = [ '>', '<', '^' ]
 
     box.box = results
-    # box.box_type = 'MINIMAL'
-    # print box.box_it_new()
-    # box.box_type = 'SIMPLE'
-    # print box.box_it_new()
-    # box.box_type = 'SIMPLE_OUTLINE'
-    # print box.box_it_new()
+    box.box_type = 'MINIMAL'
+    print box.box_it()
+    box.box_type = 'SIMPLE'
+    print box.box_it()
+    box.box_type = 'SIMPLE_OUTLINE'
+    print box.box_it()
     box.box_type = 'OUTLINE'
-    print box.box_it_new()
-    # box.box_type = 'OUTLINE_DBL'
-    # print box.box_it_new()
+    print box.box_it()
+    box.box_type = 'OUTLINE_DBL'
+    print box.box_it()
+
+
+    ####################################
+    # TEST DATA - with left column labels
+    ####################################
+
+    box = Box()
+    results = [
+        ( 'AVG TEST DURATION', '2s' ),
+        ( 'TEST RESULTS', 'PASS: 2, FAIL: 0, ERROR: 3' ),
+        ( 'MORE RESULTS', 'Yes!!!' ),
+        ( 'EVEN MORE RESULTS', 'No!!!')
+    ]
+    box.box = results
+    box.col_orientations = [ '<', '<' ]
+    box.header = False
+    box.box_type = 'SIMPLE_OUTLINE'
+    print box.box_it()
+    box.box_type = 'OUTLINE_DBL'
+    print box.box_it()
