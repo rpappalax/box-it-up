@@ -239,11 +239,11 @@ class Box(object):
 
         # header
         if ((self.header) and ('OUTLINE' in self._type)):
-            for col, data in enumerate(self._box):
+            for col, data in enumerate(self._box[0]):
                 box += self.get_frame_row(col,'HLT', 'HMT', 'HRT', 'HLINE')
         for col, data in enumerate(self._box[0]):
             box += self.get_data_row(col, data)
-        for col, data in enumerate(self._box):
+        for col, data in enumerate(self._box[0]):
             box += self.get_frame_row(col,'HLB', 'HMB', 'HRB', 'HLINE')
 
         # data
@@ -292,25 +292,40 @@ if __name__ == '__main__':
             ( 'XXXXXXXXXXXXXXXXXXXXXXX', 'YYYYYYYYYY' ),
             ( 'AAA', 'BBBB')
     ]
-
-    # TEST DATA - header labels
-    results = [
-        [ 'aaa','bbb','ccc','dddd','eeee'],
-        [ 'ffff','gggg','hhh','iiiiiiiiiiiii','jjjjjj'],
-        [ 'kk','lllllll','m','nnnnnn','oooooo'],
-        [ 'ppppp','qq','rrrr','sssss','t'],
-        [ 'u','vvv','ww','xxx','yyyyyyyyyyyyyyyy']
-    ]
+    #
+    # # TEST DATA - header labels
+    # results = [
+    #     [ 'aaa','bbb','ccc','dddd','eeee'],
+    #     [ 'ffff','gggg','hhh','iiiiiiiiiiiii','jjjjjj'],
+    #     [ 'kk','lllllll','m','nnnnnn','oooooo'],
+    #     [ 'ppppp','qq','rrrr','sssss','t'],
+    #     [ 'u','vvv','ww','xxx','yyyyyyyyyyyyyyyy']
+    # ]
+    # results = [
+    #     [ 'aaa','bbb','ccc','dddd'],
+    #     [ 'ffff','gggg','hhh','iiiiiiiiiiiii'],
+    #     [ 'kk','lllllll','m','nnnnnn'],
+    #     [ 'ppppp','qq','rrrr','sssss'],
+    #     [ 'u','vvv','ww','xxx']
+    # ]
+    # results = [
+    #      [ 'aaa','bbb' ],
+    #      [ 'ffff','gggg' ],
+    #      [ 'kk','lllllll' ],
+    #      [ 'ppppp','qq' ],
+    #      [ 'u','vvv' ]
+    # ]
     box.col_orientations = [ '>', '<', '^', '>', '>']
+    # box.col_orientations = [ '>', '<', '^' ]
 
     box.box = results
-    box.box_type = 'MINIMAL'
-    print box.box_it_new()
-    box.box_type = 'SIMPLE'
-    print box.box_it_new()
-    box.box_type = 'SIMPLE_OUTLINE'
-    print box.box_it_new()
+    # box.box_type = 'MINIMAL'
+    # print box.box_it_new()
+    # box.box_type = 'SIMPLE'
+    # print box.box_it_new()
+    # box.box_type = 'SIMPLE_OUTLINE'
+    # print box.box_it_new()
     box.box_type = 'OUTLINE'
     print box.box_it_new()
-    box.box_type = 'OUTLINE_DBL'
-    print box.box_it_new()
+    # box.box_type = 'OUTLINE_DBL'
+    # print box.box_it_new()
