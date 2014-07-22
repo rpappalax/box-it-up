@@ -5,13 +5,13 @@ Python class for formatting various kinds of table data into an ascii table.
 
 
 ## Features
-- Provides ASCII table formatting for tabular list data 
-- Table Types (see: [Examples/table_types.txt](https://github.com/rpappalax/box-it-up/blob/master/Examples/table_types.txt):
-..1. MINIMAL          - asterisks underline column headers, no column dividers, no outline
-..2. SIMPLE (Default) - single line header and column dividers, no outline
-..3. SIMPLE_OUTLINE   - single line header, column dividers & outline
-..4. OUTLINE          - single line header, column dividers & outline (extended ascii connectors)
-..5. OUTLINE_DBL      - double line header, column dividers & outline (extended ascii connectors)
+- Provides ASCII table formatting for tabular list data  
+- Table Types (see: [Examples/table_types.txt](https://github.com/rpappalax/box-it-up/blob/master/Examples/table_types.txt):  
+  1. MINIMAL          - asterisks underline column headers, no column dividers, no outline  
+  2. SIMPLE (Default) - single line header and column dividers, no outline  
+  3. SIMPLE_OUTLINE   - single line header, column dividers & outline  
+  4. OUTLINE          - single line header, column dividers & outline (extended ascii connectors)  
+  5. OUTLINE_DBL      - double line header, column dividers & outline (extended ascii connectors)  
 
 - Examples
 ..* To see examples in action simply run `$ python box_it_up.py`
