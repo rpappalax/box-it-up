@@ -16,10 +16,10 @@ Python class for formatting various kinds of table data into an ascii table.
 - Examples
   * To see examples in action simply run `$ python box_it_up.py`
 
-## Installation
-- `$ pip install box-it-up`
-
 ## Usage
+
+### Installation
+- `$ pip install box-it-up`
 
 ### Example \#1 
 - uses column headers
