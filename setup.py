@@ -4,14 +4,14 @@ from setuptools import setup, find_packages
 
 setup(
     name = "box-it-up",
-    version = "0.0.1",
+    version = "0.0.3",
     description = "Python class for formatting various kinds of table data into an ascii table.",
     author = "Richard Pappalardo",
     author_email = "rpappalax@gmail.com",
     url = "https://github.com/rpappalax/box-it-up",
     install_requires = [],
     packages = find_packages(),
-    keywords = ['testing', 'logging', 'reporting', 'stats'],
+    keywords = ['testing', 'logging', 'reporting', 'stats', 'table'],
     classifiers=[
         "Programming Language :: Python",
         "Programming Language :: Python :: 2",

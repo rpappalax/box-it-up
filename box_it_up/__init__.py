@@ -1,1 +1,1 @@
-from box import Box
+from box_it_up import Box

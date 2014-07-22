@@ -3,21 +3,11 @@
 import sys
 
 # '''Python class for formatting various kinds of table data into an ascii table.'''
-
-POS_NW = 0
-POS_N = 1
-POS_NE = 2
-POS_W = 3
-POS_E = 4
-POS_SW = 5
-POS_S = 6
-POS_SE = 7
-
 class Box(object):
     """
     Description:
     Each data cell is surrounded by 6 header chars, 3 footer chars and a left and right char
-    Think of cardinal directions on a map
+    (Think of cardinal directions on a map)
 
     H - header
     F - footer
@@ -27,7 +17,9 @@ class Box(object):
     M - middle
     R - right
 
-    Example: HLT = HEADER LEFT TOP, etc.
+    Example: HLT = HEADER LEFT TOP,
+             HMT = HEADER MIDDLE TOP,
+             etc.
 
     HLT   HMT   HRT
     HLB   HMB   HRB
@@ -45,15 +37,16 @@ class Box(object):
 
     Tables can be header=True or False
 
-
     @TODO:
     * Add a 0 column row counter flag
+    * Add a method for processing table data one row at a time
     * Add 'colspan' type capability
     """
 
-    def __init__(self, header=True, type='OUTLINE'):
+    def __init__(self, table_data=[[]], header=True, type='OUTLINE', col_orientations=[]):
 
-        self._box = ''
+        self._col_orientations = col_orientations
+        self.table_data = table_data
         self.header = header
         self.box_type = type
 
@@ -95,9 +88,6 @@ class Box(object):
             }
         }
 
-
-        self._col_orientations = []
-
     @property
     def box_type(self):
         return self._type
@@ -116,27 +106,6 @@ class Box(object):
         self._header = header
 
     @property
-    def box(self):
-        return self._box
-
-    @box.setter
-    def box(self, data):
-        """Use box setter only for processing table data (rows x columns) in one fell swoop (vs. row-by-row)"""
-        try:
-            assert(self.is_tabular(data))
-            self._box = data
-            self._cols = len(data[0])
-            self._rows = len(data)
-
-            # default: left-orientation
-            for i in xrange(0, self._rows):
-                self._col_orientations.append('<')
-            self.max_col_lens = data
-        except Exception as e:
-            print 'ERROR: Data is NOT tabular! (lists are not of same length)'
-            sys.exit()
-
-    @property
     def max_col_lens(self):
         return self._max_col_lens
 
@@ -146,25 +115,40 @@ class Box(object):
         self._max_col_lens = [max(len(str(x)) for x in line) for line in zip(*table_data)]
 
     @property
-    def box(self):
-        return self._box
+    def table_data(self):
+        return self._table_data
 
-    @box.setter
-    def box(self, data):
+    @table_data.setter
+    def table_data(self, data):
         """Use box setter only for processing table data (rows x columns) in one fell swoop (vs. row-by-row)"""
         try:
             assert(self.is_tabular(data))
-            self._box = data
+            self._table_data = data
             self._cols = len(data[0])
             self._rows = len(data)
 
-            # default: left-orientation
-            for i in xrange(0, self._rows):
-                self._col_orientations.append('<')
             self.max_col_lens = data
         except Exception as e:
-            print 'ERROR: Data is NOT tabular! (lists are not of same length)'
+            msg_error ='ERROR: '
+            if data:
+                msg_error += 'Data is not tabular! (lists are not of same length)'
+            else:
+                msg_error += 'Data set is empty! (you must provide a tabular data set)'
+            print msg_error
             sys.exit()
+        else:
+            self.col_orientations = []
+
+
+    # @property
+    # def row_data(self):
+    #     # @TODO
+    #     return self._row_data
+    #
+    # @row_data.setter
+    # def row_data(self, data):
+    #     # @TODO
+    #     pass
 
     @property
     def max_col_lens(self):
@@ -180,12 +164,18 @@ class Box(object):
         return self._col_orientations
 
     @col_orientations.setter
-    def col_orientations(self, list_orientations):
+    def col_orientations(self, orientations):
         """optional parameter: set column orientations in a list
         Note: all columns left-oriented by default
         Example:
         list_orientations = [ '<', '<', '^', '>', '>' ]"""
-        self._col_orientations = list_orientations
+
+        # default
+        if not orientations:
+            for i in xrange(0, self._rows):
+                self._col_orientations.append('<')
+        else:
+            self._col_orientations = orientations
 
     def get_frame_row(self, col, LEFT, MID, RIGHT, HLINE):
         """provides top header/footer frame (row) as string"""
@@ -254,16 +244,16 @@ class Box(object):
 
         # header
         if ('OUTLINE' in self._type):
-            for col, data in enumerate(self._box[0]):
+            for col, data in enumerate(self._table_data[0]):
                 box += self.get_frame_row(col,'HLT', 'HMT', 'HRT', 'HLINE')
-        for col, data in enumerate(self._box[0]):
+        for col, data in enumerate(self._table_data[0]):
             box += self.get_data_row(col, data)
         if (self.header):
-            for col, data in enumerate(self._box[0]):
+            for col, data in enumerate(self._table_data[0]):
                 box += self.get_frame_row(col,'HLB', 'HMB', 'HRB', 'HLINE')
 
         # data
-        for row, row_list in enumerate(self._box[1:]):
+        for row, row_list in enumerate(self._table_data[1:]):
             for col, data in enumerate(row_list):
                 box += self.get_data_row(col, data)
 
@@ -293,23 +283,23 @@ class Box(object):
 
 if __name__ == '__main__':
 
-    # box = Box(type='OUTLINE', header=True)
-
     ####################################
     # TEST DATA - with header labels
     ####################################
 
-    box = Box()
-    results = [
+    test_results = [
         [ 'aaa','bbb','ccc','dddd','eeee'],
         [ 'ffff','gggg','hhh','iiiiiiiiiiiii','jjjjjj'],
         [ 'kk','lllllll','m','nnnnnn','oooooo'],
         [ 'ppppp','qq','rrrr','sssss','t'],
         [ 'u','vvv','ww','xxx','yyyyyyyyyyyyyyyy']
     ]
-    box.col_orientations = [ '>', '<', '^', '>', '>']
+    orientations = [ '>', '<', '^', '>', '>']
 
-    box.box = results
+    # input params: we can pass them all in at once
+    box = Box(table_data=test_results, type='OUTLINE', header=True, col_orientations=orientations)
+
+    # box.table_data = test_results
     box.box_type = 'MINIMAL'
     print box.box_it()
     box.box_type = 'SIMPLE'
@@ -326,14 +316,15 @@ if __name__ == '__main__':
     # TEST DATA - with left column labels
     ####################################
 
+    # input params: we can set them later
     box = Box()
-    results = [
+    test_results = [
         ( 'AVG TEST DURATION', '2s' ),
         ( 'TEST RESULTS', 'PASS: 2, FAIL: 0, ERROR: 3' ),
         ( 'MORE RESULTS', 'Yes!!!' ),
         ( 'EVEN MORE RESULTS', 'No!!!')
     ]
-    box.box = results
+    box.table_data = test_results
     box.col_orientations = [ '<', '<' ]
     box.header = False
     box.box_type = 'SIMPLE_OUTLINE'
